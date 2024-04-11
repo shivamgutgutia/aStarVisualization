@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A* Algorithm Visualization</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="grid-container"></div>
+    <button onclick="findShortestPath()">Find Shortest Path</button>
+    <label for="heuristic">Select Heuristic Function:</label>
+    <select id="heuristic">
+        <option value="manhattan">Manhattan Distance</option>
+        <option value="euclidean">Euclidean Distance</option>
+    </select>
+    <script src="script.js"></script>
+</body>
+</html>

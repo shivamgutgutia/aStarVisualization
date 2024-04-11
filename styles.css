@@ -1,0 +1,93 @@
+/* Resetting default styles */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+/* Body styles */
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f0f0f0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+}
+
+/* Container styles */
+.container {
+	text-align: center;
+}
+
+/* Heading styles */
+h1 {
+	color: #333;
+	margin-bottom: 20px;
+}
+
+/* Grid styles */
+#grid-container {
+	display: grid;
+	grid-template-columns: repeat(8, 50px);
+	grid-template-rows: repeat(8, 50px);
+	grid-gap: 2px;
+	margin-bottom: 20px;
+}
+
+/* Cell styles */
+.cell {
+	width: 50px;
+	height: 50px;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	transition: background-color 0.3s ease;
+}
+
+.cell.start {
+	background-color: #6ee06e; /* Green */
+}
+
+.cell.end {
+	background-color: #ff6e6e; /* Red */
+}
+
+.cell.obstacle {
+	background-color: #bfbfbf; /* Gray */
+}
+
+.cell.visited {
+	background-color: #add8e6; /* Light blue */
+}
+
+.cell.path {
+	background-color: #ffff00; /* Yellow */
+}
+
+/* Button styles */
+button {
+	margin: 10px;
+	padding: 10px 20px;
+	font-size: 16px;
+	background-color: #4caf50; /* Green */
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+button:hover {
+	background-color: #45a049; /* Darker green */
+}
+
+/* Form styles */
+label {
+	margin-right: 10px;
+}
+
+select {
+	padding: 8px;
+	font-size: 16px;
+	border-radius: 5px;
+}
