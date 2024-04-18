@@ -1,93 +1,120 @@
 /* Resetting default styles */
 * {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 /* Body styles */
 body {
-	font-family: Arial, sans-serif;
-	background-color: #f0f0f0;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
 /* Container styles */
 .container {
-	text-align: center;
+    text-align: center;
+    max-width: 90%;
 }
+
+/* Button container styles */
+.button-container {
+    margin-bottom: 10px; /* Add margin between button and select container */
+}
+
+/* Select container styles */
+.select-container {
+    display: inline-block; /* Display as inline-block to allow side-by-side placement */
+}
+
+
 
 /* Heading styles */
 h1 {
-	color: #333;
-	margin-bottom: 20px;
+    color: #333;
+    margin-bottom: 10px;
 }
 
 /* Grid styles */
 #grid-container {
-	display: grid;
-	grid-template-columns: repeat(8, 50px);
-	grid-template-rows: repeat(8, 50px);
-	grid-gap: 2px;
-	margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    grid-gap: 1px;
+    width: 100%;
+    max-width: 400px; /* Adjust the max-width as needed */
+    margin: 0 auto; /* Center the grid */
 }
 
 /* Cell styles */
 .cell {
-	width: 50px;
-	height: 50px;
-	background-color: #fff;
-	border: 1px solid #ccc;
-	transition: background-color 0.3s ease;
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-top: 100%;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    transition: background-color 0.3s ease;
+    user-select: none;
+    overflow: hidden;
+    display: flex; /* Make cell a flex container */
+    justify-content: flex-start; /* Center align content horizontally */
+    align-items: flex-end; /* Center align content vertically */
+    text-align: left; /* Center align text within the cell */
+	font-size: 10px;
 }
 
+
+
 .cell.start {
-	background-color: #6ee06e; /* Green */
+    background-color: #6ee06e; /* Green */
 }
 
 .cell.end {
-	background-color: #ff6e6e; /* Red */
+    background-color: #ff6e6e; /* Red */
 }
 
 .cell.obstacle {
-	background-color: #bfbfbf; /* Gray */
+    background-color: #bfbfbf; /* Gray */
 }
 
 .cell.visited {
-	background-color: #add8e6; /* Light blue */
+    background-color: #add8e6; /* Light blue */
 }
 
 .cell.path {
-	background-color: #ffff00; /* Yellow */
+    background-color: #ffff00; /* Yellow */
 }
 
 /* Button styles */
 button {
-	margin: 10px;
-	padding: 10px 20px;
-	font-size: 16px;
-	background-color: #4caf50; /* Green */
-	color: #fff;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	transition: background-color 0.3s ease;
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4caf50; /* Green */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-	background-color: #45a049; /* Darker green */
+    background-color: #45a049; /* Darker green */
 }
 
 /* Form styles */
 label {
-	margin-right: 10px;
+    margin-right: 10px;
 }
 
 select {
-	padding: 8px;
-	font-size: 16px;
-	border-radius: 5px;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    margin-bottom: 10px;
 }

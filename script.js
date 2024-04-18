@@ -9,9 +9,26 @@ let endCell = null;
 let obstacles = new Set();
 let heuristic = "manhattan";
 
+const selectHeuristic = document.getElementById("heuristic");
+selectHeuristic.addEventListener("change", function () {
+	heuristic = selectHeuristic.value;
+});
+
+const gridContainer = document.getElementById("grid-container");
+let isMouseDown = false;
+
+
+gridContainer.addEventListener("mousedown", () => {
+    isMouseDown = true;
+});
+
+gridContainer.addEventListener("mouseup", () => {
+    isMouseDown = false;
+});
+
 // Initialize grid
 function initializeGrid() {
-	const gridContainer = document.getElementById("grid-container");
+	
 	for (let i = 0; i < GRID_HEIGHT; i++) {
 		grid[i] = [];
 		for (let j = 0; j < GRID_WIDTH; j++) {
@@ -19,7 +36,14 @@ function initializeGrid() {
 			cell.className = "cell";
 			cell.dataset.row = i;
 			cell.dataset.col = j;
-			cell.addEventListener("click", () => toggleCell(cell));
+			cell.addEventListener("mouseover", () => {
+				if(isMouseDown){
+					toggleCell(cell)
+				}
+			});
+			cell.addEventListener("click", () => {
+				toggleCell(cell)
+			});
 			grid[i][j] = cell;
 			gridContainer.appendChild(cell);
 		}
@@ -54,33 +78,34 @@ function toggleCell(cell) {
 	}
 }
 
-// Find shortest path using A* algorithm
-// Find shortest path using A* algorithm
-// Find shortest path using A* algorithm
 async function findShortestPath() {
 	if (!startCell || !endCell) {
 		alert("Please select start and end cells.");
 		return;
 	}
 
-	// A* algorithm implementation
 	const openSet = new Set([startCell]);
 	const cameFrom = new Map();
 	const gScore = new Map();
 	const fScore = new Map();
 
+	// Initialize scores and set initial values
 	for (let row = 0; row < GRID_HEIGHT; row++) {
 		for (let col = 0; col < GRID_WIDTH; col++) {
 			const cell = grid[row][col];
 			gScore.set(cell, Infinity);
 			fScore.set(cell, Infinity);
+			cell.textContent = "";
+			cell.classList.remove("visited", "path");
 		}
 	}
 
 	gScore.set(startCell, 0);
 	fScore.set(startCell, heuristicCostEstimate(startCell, endCell));
+	startCell.textContent = fScore.get(startCell);
 
 	while (openSet.size > 0) {
+		console.log(openSet);
 		let current = null;
 		for (const cell of openSet) {
 			if (!current || fScore.get(cell) < fScore.get(current)) {
@@ -89,7 +114,7 @@ async function findShortestPath() {
 		}
 
 		if (current === endCell) {
-			reconstructPath(cameFrom, endCell);
+			await reconstructPath(cameFrom, endCell);
 			return;
 		}
 
@@ -97,7 +122,7 @@ async function findShortestPath() {
 
 		const neighbors = getNeighbors(current);
 		for (const neighbor of neighbors) {
-			const tentativeGScore = gScore.get(current) + 1; // Assuming each step has a cost of 1
+			const tentativeGScore = gScore.get(current) + 1;
 			if (tentativeGScore < gScore.get(neighbor)) {
 				cameFrom.set(neighbor, current);
 				gScore.set(neighbor, tentativeGScore);
@@ -107,13 +132,14 @@ async function findShortestPath() {
 				);
 				openSet.add(neighbor);
 				if (!neighbor.classList.contains("end")) {
-					neighbor.classList.add("visited"); // Add visited class to the neighbor cell
+					neighbor.classList.add("visited");
 				}
+				neighbor.textContent = parseFloat(fScore.get(neighbor).toFixed(2));
 			}
 		}
 
 		// Delay for visualization
-		await delay(100); // Adjust delay time (in milliseconds) as needed
+		await delay(100);
 	}
 
 	alert("No path found.");
@@ -123,10 +149,13 @@ async function findShortestPath() {
 function heuristicCostEstimate(cell, endCell) {
 	const rowDiff = Math.abs(cell.dataset.row - endCell.dataset.row);
 	const colDiff = Math.abs(cell.dataset.col - endCell.dataset.col);
-	if (heuristic === "manhattan") {
+	if (heuristic === "random") {
+		const maxCost = 8; // Maximum random cost
+		return Math.floor(Math.random() * maxCost);
+	} else if (heuristic === "manhattan") {
 		return rowDiff + colDiff;
 	} else if (heuristic === "euclidean") {
-		return Math.sqrt(rowDiff ** 2 + colDiff ** 2);
+		return parseFloat(Math.sqrt(rowDiff ** 2 + colDiff ** 2).toFixed(2));
 	}
 }
 
