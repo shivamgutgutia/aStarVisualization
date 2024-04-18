@@ -101,7 +101,6 @@ async function findPath() {
 	startPoint.textContent = fScoreMap.get(startPoint);
 
 	while (openSet.size > 0) {
-		console.log(openSet);
 		let current = null;
 		for (const cell of openSet) {
 			if (!current || fScoreMap.get(cell) < fScoreMap.get(current)) {
