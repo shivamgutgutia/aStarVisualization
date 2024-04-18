@@ -1,166 +1,154 @@
-// Constants for grid dimensions
-const GRID_WIDTH = 8;
-const GRID_HEIGHT = 8;
+let customGrid = [];
+let startPoint = null;
+let endPoint = null;
+let blockedCells = new Set();
+let selectedHeuristic = "manhattan";
 
-// Global variables
-let grid = [];
-let startCell = null;
-let endCell = null;
-let obstacles = new Set();
-let heuristic = "manhattan";
-
-const selectHeuristic = document.getElementById("heuristic");
-selectHeuristic.addEventListener("change", function () {
-	heuristic = selectHeuristic.value;
+const heuristicSelector = document.getElementById("heuristic");
+heuristicSelector.addEventListener("change", function () {
+	selectedHeuristic = heuristicSelector.value;
 });
 
-const gridContainer = document.getElementById("grid-container");
-let isMouseDown = false;
+const gridHolder = document.getElementById("grid-container");
+let mousePressed = false;
 
-
-gridContainer.addEventListener("mousedown", () => {
-    isMouseDown = true;
+gridHolder.addEventListener("mousedown", () => {
+	mousePressed = true;
 });
 
-gridContainer.addEventListener("mouseup", () => {
-    isMouseDown = false;
+gridHolder.addEventListener("mouseup", () => {
+	mousePressed = false;
 });
 
-// Initialize grid
-function initializeGrid() {
-	
-	for (let i = 0; i < GRID_HEIGHT; i++) {
-		grid[i] = [];
-		for (let j = 0; j < GRID_WIDTH; j++) {
-			const cell = document.createElement("div");
-			cell.className = "cell";
-			cell.dataset.row = i;
-			cell.dataset.col = j;
-			cell.addEventListener("mouseover", () => {
-				if(isMouseDown){
-					toggleCell(cell)
+function initializeCustomGrid() {
+	for (let i = 0; i < 8; i++) {
+		customGrid[i] = [];
+		for (let j = 0; j < 8; j++) {
+			const gridCell = document.createElement("div");
+			gridCell.className = "cell";
+			gridCell.dataset.row = i;
+			gridCell.dataset.col = j;
+			gridCell.addEventListener("mouseover", () => {
+				if (mousePressed) {
+					toggleCell(gridCell);
 				}
 			});
-			cell.addEventListener("click", () => {
-				toggleCell(cell)
+			gridCell.addEventListener("click", () => {
+				toggleCell(gridCell);
 			});
-			grid[i][j] = cell;
-			gridContainer.appendChild(cell);
+			customGrid[i][j] = gridCell;
+			gridHolder.appendChild(gridCell);
 		}
 	}
 }
 
-// Toggle cell between start, end, and obstacle states
 function toggleCell(cell) {
 	const row = parseInt(cell.dataset.row);
 	const col = parseInt(cell.dataset.col);
 
 	if (cell.classList.contains("start")) {
 		cell.classList.remove("start");
-		startCell = null;
+		startPoint = null;
 	} else if (cell.classList.contains("end")) {
 		cell.classList.remove("end");
-		endCell = null;
-	} else if (obstacles.has(cell)) {
-		obstacles.delete(cell);
+		endPoint = null;
+	} else if (blockedCells.has(cell)) {
+		blockedCells.delete(cell);
 		cell.classList.remove("obstacle");
 	} else {
-		if (!startCell) {
+		if (!startPoint) {
 			cell.classList.add("start");
-			startCell = cell;
-		} else if (!endCell) {
+			startPoint = cell;
+		} else if (!endPoint) {
 			cell.classList.add("end");
-			endCell = cell;
+			endPoint = cell;
 		} else {
-			obstacles.add(cell);
+			blockedCells.add(cell);
 			cell.classList.add("obstacle");
 		}
 	}
 }
 
-async function findShortestPath() {
-	if (!startCell || !endCell) {
-		alert("Please select start and end cells.");
+async function findPath() {
+	if (!startPoint || !endPoint) {
+		alert("Please choose start and end points.");
 		return;
 	}
 
-	const openSet = new Set([startCell]);
-	const cameFrom = new Map();
-	const gScore = new Map();
-	const fScore = new Map();
+	const openSet = new Set([startPoint]);
+	const cameFromMap = new Map();
+	const gScoreMap = new Map();
+	const fScoreMap = new Map();
 
-	// Initialize scores and set initial values
-	for (let row = 0; row < GRID_HEIGHT; row++) {
-		for (let col = 0; col < GRID_WIDTH; col++) {
-			const cell = grid[row][col];
-			gScore.set(cell, Infinity);
-			fScore.set(cell, Infinity);
+	for (let row = 0; row < 8; row++) {
+		for (let col = 0; col < 8; col++) {
+			const cell = customGrid[row][col];
+			gScoreMap.set(cell, Infinity);
+			fScoreMap.set(cell, Infinity);
 			cell.textContent = "";
 			cell.classList.remove("visited", "path");
 		}
 	}
 
-	gScore.set(startCell, 0);
-	fScore.set(startCell, heuristicCostEstimate(startCell, endCell));
-	startCell.textContent = fScore.get(startCell);
+	gScoreMap.set(startPoint, 0);
+	fScoreMap.set(startPoint, heuristicCost(startPoint, endPoint));
+	startPoint.textContent = fScoreMap.get(startPoint);
 
 	while (openSet.size > 0) {
 		console.log(openSet);
 		let current = null;
 		for (const cell of openSet) {
-			if (!current || fScore.get(cell) < fScore.get(current)) {
+			if (!current || fScoreMap.get(cell) < fScoreMap.get(current)) {
 				current = cell;
 			}
 		}
 
-		if (current === endCell) {
-			await reconstructPath(cameFrom, endCell);
+		if (current === endPoint) {
+			await reconstructPath(cameFromMap, endPoint);
 			return;
 		}
 
 		openSet.delete(current);
 
-		const neighbors = getNeighbors(current);
+		const neighbors = getAdjacentCells(current);
 		for (const neighbor of neighbors) {
-			const tentativeGScore = gScore.get(current) + 1;
-			if (tentativeGScore < gScore.get(neighbor)) {
-				cameFrom.set(neighbor, current);
-				gScore.set(neighbor, tentativeGScore);
-				fScore.set(
+			const tentativeGScore = gScoreMap.get(current) + 1;
+			if (tentativeGScore < gScoreMap.get(neighbor)) {
+				cameFromMap.set(neighbor, current);
+				gScoreMap.set(neighbor, tentativeGScore);
+				fScoreMap.set(
 					neighbor,
-					tentativeGScore + heuristicCostEstimate(neighbor, endCell)
+					tentativeGScore + heuristicCost(neighbor, endPoint)
 				);
 				openSet.add(neighbor);
 				if (!neighbor.classList.contains("end")) {
 					neighbor.classList.add("visited");
 				}
-				neighbor.textContent = parseFloat(fScore.get(neighbor).toFixed(2));
+				neighbor.textContent = parseFloat(
+					fScoreMap.get(neighbor).toFixed(2)
+				);
 			}
 		}
-
-		// Delay for visualization
 		await delay(100);
 	}
-
-	alert("No path found.");
+	alert("No viable path found.");
 }
 
-// Heuristic function (Manhattan or Euclidean)
-function heuristicCostEstimate(cell, endCell) {
-	const rowDiff = Math.abs(cell.dataset.row - endCell.dataset.row);
-	const colDiff = Math.abs(cell.dataset.col - endCell.dataset.col);
-	if (heuristic === "random") {
-		const maxCost = 8; // Maximum random cost
-		return Math.floor(Math.random() * maxCost);
-	} else if (heuristic === "manhattan") {
-		return rowDiff + colDiff;
-	} else if (heuristic === "euclidean") {
-		return parseFloat(Math.sqrt(rowDiff ** 2 + colDiff ** 2).toFixed(2));
+function heuristicCost(cell, end) {
+	const rowDifference = Math.abs(cell.dataset.row - end.dataset.row);
+	const colDifference = Math.abs(cell.dataset.col - end.dataset.col);
+	if (selectedHeuristic === "random") {
+		return Math.floor(Math.random() * 8);
+	} else if (selectedHeuristic === "manhattan") {
+		return rowDifference + colDifference;
+	} else if (selectedHeuristic === "euclidean") {
+		return parseFloat(
+			Math.sqrt(rowDifference ** 2 + colDifference ** 2).toFixed(2)
+		);
 	}
 }
 
-// Get neighboring cells of a given cell
-function getNeighbors(cell) {
+function getAdjacentCells(cell) {
 	const neighbors = [];
 	const row = parseInt(cell.dataset.row);
 	const col = parseInt(cell.dataset.col);
@@ -169,28 +157,20 @@ function getNeighbors(cell) {
 		[1, 0],
 		[0, -1],
 		[0, 1],
-	]; // Up, down, left, right
-
+	];
 	for (const [dx, dy] of directions) {
 		const newRow = row + dx;
 		const newCol = col + dy;
-		if (
-			newRow >= 0 &&
-			newRow < GRID_HEIGHT &&
-			newCol >= 0 &&
-			newCol < GRID_WIDTH
-		) {
-			const neighbor = grid[newRow][newCol];
-			if (!obstacles.has(neighbor)) {
+		if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+			const neighbor = customGrid[newRow][newCol];
+			if (!blockedCells.has(neighbor)) {
 				neighbors.push(neighbor);
 			}
 		}
 	}
-
 	return neighbors;
 }
 
-// Reconstruct path from start cell to end cell
 async function reconstructPath(cameFrom, current) {
 	const path = [current];
 	while (cameFrom.has(current)) {
@@ -198,14 +178,13 @@ async function reconstructPath(cameFrom, current) {
 		path.unshift(current);
 	}
 
-	// Visualize path
 	for (const cell of path) {
 		if (
 			!cell.classList.contains("start") &&
 			!cell.classList.contains("end")
 		) {
 			cell.classList.add("path");
-			await delay(100);
+			await delay(10);
 		}
 	}
 }
@@ -214,5 +193,4 @@ function delay(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Initialize grid when the page loads
-window.onload = initializeGrid;
+window.onload = initializeCustomGrid;
