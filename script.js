@@ -48,22 +48,28 @@ function toggleCell(cell) {
 
 	if (cell.classList.contains("start")) {
 		cell.classList.remove("start");
+		cell.textContent=""
 		startPoint = null;
 	} else if (cell.classList.contains("end")) {
 		cell.classList.remove("end");
+		cell.textContent = "";
 		endPoint = null;
 	} else if (blockedCells.has(cell)) {
 		blockedCells.delete(cell);
+		cell.textContent = "";
 		cell.classList.remove("obstacle");
 	} else {
 		if (!startPoint) {
 			cell.classList.add("start");
+			cell.textContent = "S";
 			startPoint = cell;
 		} else if (!endPoint) {
 			cell.classList.add("end");
+			cell.textContent = "G";
 			endPoint = cell;
 		} else {
 			blockedCells.add(cell);
+			cell.textContent = "#";
 			cell.classList.add("obstacle");
 		}
 	}
@@ -85,7 +91,7 @@ async function findPath() {
 			const cell = customGrid[row][col];
 			gScoreMap.set(cell, Infinity);
 			fScoreMap.set(cell, Infinity);
-			cell.textContent = "";
+			cell.textContent=""
 			cell.classList.remove("visited", "path");
 		}
 	}
